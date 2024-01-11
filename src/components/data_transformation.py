@@ -110,7 +110,6 @@ class DataTransformation:
             test_arr = [input_feature_test_arr, np.array(target_feature_test_df)]
 
             save_object(
-
                 file_path=self.data_transformation_config.preprocessor_obj_file_path,
                 obj=preprocessing_obj
             )
@@ -119,5 +118,6 @@ class DataTransformation:
                 test_arr,
                 self.data_transformation_config.preprocessor_obj_file_path,
             )
-        except:
-            pass
+        except Exception as e:
+            raise CustomException(e,sys)
+            
