@@ -1,13 +1,28 @@
 ## Git Hub and code setup
 
+*Setup.py* is responsible for building this machine learning application as a package. For example, it allows this application to be built as a package that is deployed in PyPi, and other users can download and install this machine learning application.
+
+The `setup()` function provides the general information about the entire project.
 
 ```python
-from setuptools import find_packages, setup
-from typing import List
+setup(
+    name='students-performance',
+    version='0.0.1',
+    author='Diogo',
+    author_email='diogojfr1@gmail.com', 
+    packages=find_packages(),
+    install_requires =  get_requirements('requirements.txt')  
+)
 ```
 
+The `__init__.py` in the *src* (source) folder allows that folder to be built as a package when setup.py is run.
+
+The requirements.txt file contains all the libraries required for the project. For the first building, it is required to add a line with `-e .`.
+
+The function get_requirements takes a string (the path of requirements.txt) and and returns a list of libraries. The argument `file_path` is expected to be of type ´str´ and the return type ´List´ of strings.
 
 ```python
+HYPHEN_E_DOT='-e .'
 def get_requirements(file_path:str)->List[str]:
     '''
     This function will return the list of requirements
@@ -22,13 +37,7 @@ def get_requirements(file_path:str)->List[str]:
     return requirements
 ```
 
+Building the package:
 ```python
-setup(
-    name='students-performance',
-    version='0.0.1',
-    author='Diogo',
-    author_email='diogojfr1@gmail.com', 
-    packages=find_packages(),
-    install_requires =  get_requirements('requirements.txt')  
-)
+pip install -r requirements.txt
 ```
