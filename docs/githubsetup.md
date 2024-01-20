@@ -41,3 +41,29 @@ Building the package:
 ```python
 pip install -r requirements.txt
 ```
+<br>
+Strcture of the project:
+
+```bash 
+|__src/ # project source folder
+|   |__components/ # modules for the project
+|   |   |__ __init__.py
+|   |   |__data_ingestion.py
+|   |   |__data_transformation.py
+|   |   |__model_trainer.py
+|   |__pipeline/ # pipiles for training and prediction
+|   |   |__ __init__.py
+|   |   |__predict_pipeline.py
+|   |   |__train_pipeline.py
+|   |__ __init__.py
+|   |__logger.py
+|   |__exception.py
+|   |__utils.py
+|__setup.py
+|__app.py
+|__artifacts/ # train and test data
+|__notebook/ # EDA in jupyter notebook 
+|   |__data/ # raw dataset    
+|__templates/ # templates for html pages
+|__requirements.txt # libraries
+```
