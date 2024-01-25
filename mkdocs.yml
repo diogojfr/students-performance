@@ -3,7 +3,6 @@ nav:
     - Home: index.md
     - Git Hub and code setup: githubsetup.md
     - Logging and exception handling: logexception.md
-    - Exploratory data analysis: eda.md
     - Model training: mdltraining.md
     - Data ingestion: dataingestion.md
     - Data transforming (pipelines): datatranform.md
