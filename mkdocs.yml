@@ -1,11 +1,10 @@
 site_name: Student Performance
 nav:
     - Home: index.md
-    - Git Hub and code setup: githubsetup.md
+    - GitHub and code setup: githubsetup.md
     - Logging and exception handling: logexception.md
     - Data ingestion: dataingestion.md
-    - Data transforming (pipelines): datatranform.md
-    - Model Training and evaluation: mdltraineval.md
-    - Hyperparameter tuning: hyperparam.md
+    - Data transformation (pipelines): datatranform.md
+    - Model training and evaluation: mdltraineval.md
     - Prediction using Flask: flaskpred.md
 theme: readthedocs

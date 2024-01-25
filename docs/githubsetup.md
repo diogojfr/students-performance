@@ -1,4 +1,4 @@
-## Git Hub and code setup
+## GitHub and code setup
 
 *Setup.py* is responsible for building this machine learning application as a package. For example, it allows this application to be built as a package that is deployed in PyPi, and other users can download and install this machine learning application.
 
