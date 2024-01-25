@@ -1,11 +1,17 @@
 ## Data Trasformation
 
-The data transformation initiates setting the path where the preprocessor objet will be saved. This task is executed by the `DataTransformationConfig` class.
+The data transformation is initiated by setting the path where the preprocessor object will be stored. This task is performed by the `DataTransformationConfig` class.
 
 ```python
 class DataTransformationConfig:
     preprocessor_obj_file_path=os.path.join('artifacts',"preprocessor.pkl")
 ```
+
+In the `DataTransformation` class, the `get_data_transformer_obj` function returns the preprocessor object that will perform the imputation, scaling, and encoding of the categorical/numeric variables.
+
+The second function, `initiate_data_transformation`, takes as input arguments the paths for the train/test data. This function applies the preprocessor object to the train/test data frame and returns arrays with the transformed data. 
+
+The preprocessor object is saved as a pickle file using the `save_object` function. The `save_object` function is available in the `utils.py` script.
 
 ```python
 class DataTransformation:
