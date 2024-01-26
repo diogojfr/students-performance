@@ -1,4 +1,4 @@
-## End to end machine learning project
+## End-to-end machine learning project
 
 This repository contains an end-to-end project to predict and study how student performance (test scores) is affected by variables such as gender, parental education level, and preparatory courses.
 Using OOP principles, this project implements logging and exception functions, as well as pipelines for ingestion, transformation, and training steps. The model is deployed using Flask, and through a web page, the user can enter values for the students' characteristics and get the math score prediction.
