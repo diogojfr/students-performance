@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Logging and exception handling - Student Performance</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Logging and exception handling";
+        var mkdocs_page_input_path = "logexception.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Student Performance
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../githubsetup/">GitHub and code setup</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Logging and exception handling</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#exceptionpy">exception.py</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#loggerpy">logger.py</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dataingestion/">Data ingestion</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../datatranform/">Data transformation (pipelines)</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../mdltraineval/">Model training and evaluation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../flaskpred/">Prediction using Flask</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Student Performance</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Logging and exception handling</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="logging-and-exception-handling">Logging and exception handling</h2>
+<ul>
+<li>
+<h4 id="exceptionpy"><strong>exception.py</strong></h4>
+</li>
+</ul>
+<p>In this project, the <em>exception.py</em> file was created to provide a custom exception function to inform the user about errors during execution.</p>
+<p>The <code>CustomException()</code> class uses the <code>error_message_detail()</code> to return an error message and details about the error.</p>
+<pre><code class="language-python">class CustomException(Exception):
+    def __init__(self, error_message, error_detail:sys):
+        super().__init__(error_message)
+        self.error_message =  error_message_detail(error_message, error_detail=error_detail)
+
+    def __str__(self):
+        return self.error_message
+</code></pre>
+<p>The <code>error_message_detail()</code> function takes two arguments: the error and its details (from the <em>sys</em> library). 
+This function returns a string containing the script name, line number and a message about the error. </p>
+<pre><code class="language-python">def error_message_detail(error, error_detail:sys):
+    _,_,exc_tb = error_detail.exc_info()
+    file_name = exc_tb.tb_frame.f_code.co_filename
+    error_message = &quot;Error in pyhton script name [{0}] line number [{1}] error message [{2}]&quot;.format(
+        file_name, exc_tb.tb_lineno, str(error)
+    )
+
+    return error_message
+</code></pre>
+<p>Usage example:</p>
+<pre><code class="language-python">if __name__ == &quot;__main__&quot;:
+    try:
+        a=1/0
+    except Exception as e:
+        raise CustomException(e,sys)
+
+</code></pre>
+<p><br></p>
+<ul>
+<li>
+<h4 id="loggerpy"><strong>logger.py</strong></h4>
+</li>
+</ul>
+<p>The <code>logger.py</code> file uses the <em>logging</em> module of Python to generate a log.</p>
+<p>The user provides a message to the <code>logging.info()</code> function and it returns information about the date/time and the message provided by the user.</p>
+<pre><code class="language-python">logging.basicConfig(
+    filename=LOG_FILE_PATH,
+    format=&quot;[ %(asctime)s ] %(lineno)d %(name)s - %(levelname)s - %(message)s&quot;,
+    level=logging.INFO, 
+)
+</code></pre>
+<p>Usage example:</p>
+<pre><code class="language-python">if __name__ == &quot;__main__&quot;:
+    logging.info(&quot;Logging has started&quot;)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../githubsetup/" class="btn btn-neutral float-left" title="GitHub and code setup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../dataingestion/" class="btn btn-neutral float-right" title="Data ingestion">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../githubsetup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../dataingestion/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

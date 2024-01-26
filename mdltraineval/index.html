@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Model training and evaluation - Student Performance</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Model training and evaluation";
+        var mkdocs_page_input_path = "mdltraineval.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Student Performance
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../githubsetup/">GitHub and code setup</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../logexception/">Logging and exception handling</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dataingestion/">Data ingestion</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../datatranform/">Data transformation (pipelines)</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Model training and evaluation</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../flaskpred/">Prediction using Flask</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Student Performance</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Model training and evaluation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="model-training-and-evaluation">Model Training and Evaluation</h2>
+<p>The <code>ModelTrainerConfig</code> class creates the path where the model (pickle file) will be stored.</p>
+<pre><code class="language-python">class ModelTrainerConfig:
+    trained_model_file_path = os.path.join('artifacts','model.pkl')
+</code></pre>
+<p>The <code>ModelTrainer</code> starts by instantiating the <code>ModelTrainerConfig</code> class, i.e. getting the path where the model will be stored.</p>
+<p>After that, the <code>initiate_model_trainer</code> function gets the arrays of training and test data and performs model training for several models using the hyperparameters presented in the script. </p>
+<p>The <code>evaluate_models</code> function is used to get a report of the model results. The <code>evaluate_models</code> function is available in the <code>utils.py</code> script. The model with the best score is saved as a pickle file using the <code>save_object</code> function.</p>
+<pre><code class="language-python">class ModelTrainer:
+    def __init__(self):
+        self.model_trainer_config = ModelTrainerConfig()
+
+    def initiate_model_trainer(self, train_array, test_array):
+        try:
+            logging.info('Spliting traning and test input data') 
+
+            X_train,y_train,X_test,y_test=(
+                train_array[:,:-1],
+                train_array[:,-1],
+                test_array[:,:-1],
+                test_array[:,-1]
+            )
+
+            models = {
+                &quot;Random Forest&quot;: RandomForestRegressor(),
+                &quot;Decision Tree&quot;: DecisionTreeRegressor(),
+                &quot;Gradient Boosting&quot;: GradientBoostingRegressor(),
+                &quot;Linear Regression&quot;: LinearRegression(),
+                &quot;XGBRegressor&quot;: XGBRegressor(),
+                &quot;CatBoosting Regressor&quot;: CatBoostRegressor(verbose=False),
+                &quot;AdaBoost Regressor&quot;: AdaBoostRegressor(),
+            }
+
+            params={
+                &quot;Decision Tree&quot;: {
+                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                    # 'splitter':['best','random'],
+                    # 'max_features':['sqrt','log2'],
+                },
+                &quot;Random Forest&quot;:{
+                    # 'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+
+                    # 'max_features':['sqrt','log2',None],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                &quot;Gradient Boosting&quot;:{
+                    # 'loss':['squared_error', 'huber', 'absolute_error', 'quantile'],
+                    'learning_rate':[.1,.01,.05,.001],
+                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
+                    # 'criterion':['squared_error', 'friedman_mse'],
+                    # 'max_features':['auto','sqrt','log2'],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                &quot;Linear Regression&quot;:{},
+                &quot;XGBRegressor&quot;:{
+                    'learning_rate':[.1,.01,.05,.001],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                &quot;CatBoosting Regressor&quot;:{
+                    'depth': [6,8,10],
+                    'learning_rate': [0.01, 0.05, 0.1],
+                    'iterations': [30, 50, 100]
+                },
+                &quot;AdaBoost Regressor&quot;:{
+                    'learning_rate':[.1,.01,0.5,.001],
+                    # 'loss':['linear','square','exponential'],
+                    'n_estimators': [8,16,32,64,128,256]
+                }
+
+            }
+
+            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,models=models,param=params)
+
+            # get the best model score 
+            best_model_score = max(sorted(model_report.values()))
+
+            # get the best model name
+            best_model_name = list(model_report.keys())[
+                list(model_report.values()).index(best_model_score)
+            ]
+
+            best_model = models[best_model_name]
+
+            if best_model_score &lt; 0.6:
+                raise CustomException('No best model found')
+
+            logging.info(f'Best model found on both training and testing dataset')
+
+            save_object(
+                file_path=self.model_trainer_config.trained_model_file_path,
+                obj=best_model
+            )
+
+            predicted=best_model.predict(X_test)
+            r2_score_value = r2_score(y_test,predicted)
+
+            return r2_score_value
+
+        except Exception as e:
+            raise CustomException(e,sys)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../datatranform/" class="btn btn-neutral float-left" title="Data transformation (pipelines)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../flaskpred/" class="btn btn-neutral float-right" title="Prediction using Flask">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../datatranform/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../flaskpred/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

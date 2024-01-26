@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Prediction using Flask - Student Performance</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Prediction using Flask";
+        var mkdocs_page_input_path = "flaskpred.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Student Performance
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../githubsetup/">GitHub and code setup</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../logexception/">Logging and exception handling</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dataingestion/">Data ingestion</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../datatranform/">Data transformation (pipelines)</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../mdltraineval/">Model training and evaluation</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Prediction using Flask</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Student Performance</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Prediction using Flask</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <!-- Dont forget to add site/ to the .gitignore after the building-->
+<h2 id="prediction-using-flask">Prediction using Flask</h2>
+<p>The <code>predic_pipeline.py</code> script contains the <code>PredictPipeline</code> and <code>CustomData</code> classes.</p>
+<p>In the <code>CustomData</code> class, gets the feature values inserted by the user in the html page and creates a dataframe with this information. </p>
+<pre><code class="language-python">class CustomData:
+    def __init__(self, 
+        gender: str,
+        race_ethnicity: str,
+        parental_level_of_education,
+        lunch: str,
+        test_preparation_course: str,
+        reading_score: int,
+        writing_score: int
+        ):
+
+        self.gender = gender
+
+        self.race_ethnicity = race_ethnicity
+
+        self.parental_level_of_education = parental_level_of_education
+
+        self.lunch = lunch
+
+        self.test_preparation_course = test_preparation_course
+
+        self.reading_score = reading_score
+
+        self.writing_score = writing_score
+
+    def get_data_as_dataframe(self):
+        try:
+            custom_data_input_dict = {
+                'gender':[self.gender],
+                'race_ethnicity':[self.race_ethnicity],
+                'parental_level_of_education':[self.parental_level_of_education],
+                'lunch':[self.lunch],
+                'test_preparation_course':[self.test_preparation_course],
+                'reading_score':[self.reading_score],
+                'writing_score':[self.writing_score]
+            }
+
+            return pd.DataFrame(custom_data_input_dict)
+
+        except Exception as e:
+            raise CustomException(e,sys)
+</code></pre>
+<p>In the <code>PredictPipeline</code> class, the <code>predict</code> function gets the dataframe with the feature values inserted by the user and returns the prediction score. The web application in the <code>app.py</code> script prints the result to the html page.</p>
+<pre><code class="language-python">class PredictPipeline:
+    def __init__(self):
+        pass
+
+    def predict(self, features):
+        try:    
+            model_path='artifacts\model.pkl'
+            preprocessor_path='artifacts\preprocessor.pkl'
+            model=load_object(file_path=model_path)
+            preprocessor=load_object(file_path=preprocessor_path)
+            data_scaled = preprocessor.transform(features)
+            preds = model.predict(data_scaled)
+            return preds
+        except Exception as e:
+            raise CustomException(e,sys)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../mdltraineval/" class="btn btn-neutral float-left" title="Model training and evaluation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../mdltraineval/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

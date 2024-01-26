@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Data transformation (pipelines) - Student Performance</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Data transformation (pipelines)";
+        var mkdocs_page_input_path = "datatranform.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Student Performance
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../githubsetup/">GitHub and code setup</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../logexception/">Logging and exception handling</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dataingestion/">Data ingestion</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Data transformation (pipelines)</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../mdltraineval/">Model training and evaluation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../flaskpred/">Prediction using Flask</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Student Performance</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Data transformation (pipelines)</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="data-trasformation">Data Trasformation</h2>
+<p>The data transformation is initiated by setting the path where the preprocessor object will be stored. This task is performed by the <code>DataTransformationConfig</code> class.</p>
+<pre><code class="language-python">class DataTransformationConfig:
+    preprocessor_obj_file_path=os.path.join('artifacts',&quot;preprocessor.pkl&quot;)
+</code></pre>
+<p>In the <code>DataTransformation</code> class, the <code>get_data_transformer_obj</code> function returns the preprocessor object that will perform the imputation, scaling, and encoding of the categorical/numeric variables.</p>
+<p>The second function, <code>initiate_data_transformation</code>, takes as input arguments the paths for the train/test data. This function applies the preprocessor object to the train/test data frame and returns arrays with the transformed data. </p>
+<p>The preprocessor object is saved as a pickle file using the <code>save_object</code> function. The <code>save_object</code> function is available in the <code>utils.py</code> script.</p>
+<pre><code class="language-python">class DataTransformation:
+    def __init__(self):
+        self.data_transformation_config = DataTransformationConfig()
+
+    def get_data_transformer_obj(self):
+        &quot;&quot;&quot;
+        This function is responsible for data transformation
+        &quot;&quot;&quot;
+        try:
+            numerical_columns = [&quot;writing_score&quot;, &quot;reading_score&quot;]
+            categorical_columns = [
+                &quot;gender&quot;,
+                &quot;race_ethnicity&quot;,
+                &quot;parental_level_of_education&quot;,
+                &quot;lunch&quot;,
+                &quot;test_preparation_course&quot;,
+            ]
+
+            # Imputing and scaling the numerical columns
+            num_pipeline= Pipeline(
+                steps=[
+                (&quot;imputer&quot;,SimpleImputer(strategy=&quot;median&quot;)),
+                (&quot;scaler&quot;,StandardScaler())
+                ]
+            )
+
+            #Imputing, encoding and scaling the categorical columns
+            cat_pipeline=Pipeline(
+                steps=[
+                (&quot;imputer&quot;,SimpleImputer(strategy=&quot;most_frequent&quot;)),
+                (&quot;one_hot_encoder&quot;,OneHotEncoder()),
+                (&quot;scaler&quot;,StandardScaler(with_mean=False))
+                ]
+            )
+
+            logging.info(f&quot;Categorical columns: {categorical_columns}&quot;)
+            logging.info(f&quot;Numerical columns: {numerical_columns}&quot;) 
+
+            preprocessor=ColumnTransformer(
+                [
+                (&quot;num_pipeline&quot;,num_pipeline,numerical_columns),
+                (&quot;cat_pipelines&quot;,cat_pipeline,categorical_columns)
+                ]
+            )  
+
+            # retuning the modified dataset
+            return preprocessor
+
+        except Exception as e:
+            raise CustomException(e, sys)
+
+    def initiate_data_transformation(self, train_path, test_path):
+        try:
+            train_df = pd.read_csv(train_path)
+            test_df = pd.read_csv(test_path) 
+
+            logging.info('Reading train and test data completed')
+
+            logging.info('Obtaining preprocessing object')
+
+            preprocessing_obj=self.get_data_transformer_obj()
+
+            target_column_name = &quot;math_score&quot;
+            numerical_columns = [&quot;writing_score&quot;, &quot;reading_score&quot;]
+
+            # getting X_train
+            input_feature_train_df = train_df.drop(columns=[target_column_name],axis=1)
+
+            # getting y_train
+            target_feature_train_df=train_df[target_column_name]
+
+            # getting X_test
+            input_feature_test_df=test_df.drop(columns=[target_column_name],axis=1)
+
+            # getting y_test 
+            target_feature_test_df=test_df[target_column_name]
+
+            logging.info(
+                f&quot;Applying preprocessing object on training dataframe and testing dataframe.&quot;
+            )
+
+            input_feature_train_arr=preprocessing_obj.fit_transform(input_feature_train_df)
+
+            input_feature_test_arr=preprocessing_obj.transform(input_feature_test_df)
+
+            train_arr = np.c_[
+                input_feature_train_arr,np.array(target_feature_train_df)
+            ]
+
+            test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
+
+            save_object(
+                file_path=self.data_transformation_config.preprocessor_obj_file_path,
+                obj=preprocessing_obj
+            )
+            return (
+                train_arr,
+                test_arr,
+                self.data_transformation_config.preprocessor_obj_file_path,
+            )
+        except Exception as e:
+            raise CustomException(e,sys)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../dataingestion/" class="btn btn-neutral float-left" title="Data ingestion"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../mdltraineval/" class="btn btn-neutral float-right" title="Model training and evaluation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../dataingestion/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../mdltraineval/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
