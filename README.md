@@ -5,8 +5,8 @@ Using OOP principles, this project implements logging and exception functions, a
 The functions used in the project are introduced in the documentation.
 
 ### Objectives
-- Perform an exploratory data analysis on a student achievement dataset.
-- Ingest, transform, and train a model using a pipeline structured with coding best practices.
+- Perform an exploratory data analysis on a student achievement dataset;
+- Ingest, transform, and train a model using a pipeline structured with coding best practices;
 - Create an HTML page that allows the user to enter the student characteristics;
 - Predict the student's score for the given features.  
 
