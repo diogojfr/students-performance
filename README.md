@@ -16,6 +16,6 @@ For this project, it was used:
 - Seaborn and Matplotlib for data visualization;
 - Sklearn for the model training and evaluation;
 - Flask for deployment;
-- Mkdocs for the documentation.
+- Mkdocs for the [documentation](https://diogojfr.github.io/students-performance/).
 
 
